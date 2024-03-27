@@ -1,7 +1,7 @@
 import pg from "pg"
 import dotenv from "dotenv"
 
-dotenv.config({path: '../.env'})
+dotenv.config({path: '../../.env'})
 
 console.log('process.env.PG_USER', process.env.PG_USER)
 

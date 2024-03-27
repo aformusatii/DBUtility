@@ -68,8 +68,8 @@ const main = async function() {
     dsService.connect()
 
     try {
-        await calculate('D1MiniProEnergyMeterV1', 300)
-        await calculate('ESP01EnergyMeterV2', 300)
+        await calculate('D1MiniProEnergyMeterV1', 3)
+        await calculate('ESP01EnergyMeterV2', 3)
 
     } finally {
         await dsService.disconnect()
