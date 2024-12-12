@@ -1,7 +1,14 @@
 import pg from "pg"
 import dotenv from "dotenv"
+import path from "path"
 
-dotenv.config({path: '../../.env'})
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Define the path to the .env file relative to this script file
+const envPath = path.resolve(__dirname, '../../.env')
+dotenv.config({ path: envPath })
 
 console.log('process.env.PG_USER', process.env.PG_USER)
 
