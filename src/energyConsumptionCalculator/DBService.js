@@ -35,14 +35,14 @@ export class DBService {
     async getDailyReading(options) {
         const query = `
             SELECT
-               date_trunc('day', insert_tmstmp) as day,
-               (array_agg(float_value ORDER BY insert_tmstmp ASC))[1] as first_reading
+               date_trunc('day', event_tmstmp) as day,
+               (array_agg(numeric_value ORDER BY event_tmstmp ASC))[1] as first_reading
             FROM
                sensor_data
             WHERE
                sensor = $1 AND
                channel = $2 AND
-               insert_tmstmp BETWEEN $3 AND $4
+               event_tmstmp BETWEEN $3 AND $4
             GROUP BY
                day
             ORDER BY
@@ -58,7 +58,7 @@ export class DBService {
     }
 
     async insertData(records) {
-        let query = 'INSERT INTO sensor_data(sensor, channel, float_value, event_tmstmp) VALUES '
+        let query = 'INSERT INTO sensor_data(sensor, channel, numeric_value, event_tmstmp) VALUES '
         let values = []
 
         let index = 1

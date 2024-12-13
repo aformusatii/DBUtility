@@ -64,16 +64,20 @@ async function calculate(sensorId, daysBack) {
     await dsService.insertData(dataToInsert)
 }
 
-const main = async function() {
+const calculateForDaysBack = async function(days) {
     dsService.connect()
 
     try {
-        await calculate('D1MiniProEnergyMeterV1', 3)
-        await calculate('ESP01EnergyMeterV2', 3)
+        await calculate('D1MiniProEnergyMeterV1', days)
+        await calculate('ESP01EnergyMeterV2', days)
 
     } finally {
         await dsService.disconnect()
     }
 }
 
-main();
+//main();
+
+export {
+    calculateForDaysBack
+}
