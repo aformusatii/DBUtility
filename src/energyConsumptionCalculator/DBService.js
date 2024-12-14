@@ -32,17 +32,18 @@ export class DBService {
         await this.client.end()
     }
 
-    async getDailyReading(options) {
+    async getAggReading(aggType, filterOptions) {
+        const date_trunc_type = (aggType === 'daily') ? 'day' : 'month';
         const query = `
             SELECT
-               date_trunc('day', event_tmstmp) as day,
+               date_trunc($1, event_tmstmp  AT TIME ZONE 'Europe/Chisinau') as day,
                (array_agg(numeric_value ORDER BY event_tmstmp ASC))[1] as first_reading
             FROM
                sensor_data
             WHERE
-               sensor = $1 AND
-               channel = $2 AND
-               event_tmstmp BETWEEN $3 AND $4
+               sensor = $2 AND
+               channel = $3 AND
+               event_tmstmp BETWEEN $4 AND $5
             GROUP BY
                day
             ORDER BY
@@ -51,7 +52,13 @@ export class DBService {
 
         const res = await this.client.query(
             query,
-            [options.sensorId, options.channel, options.startDate, options.endDate]
+            [
+                date_trunc_type, 
+                filterOptions.sensorId, 
+                filterOptions.channel, 
+                filterOptions.startDate, 
+                filterOptions.endDate
+            ]
         )
 
         return res.rows

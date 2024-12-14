@@ -1,5 +1,5 @@
 import { ArgumentParser } from 'argparse';
-import {calculateForDaysBack} from './energyConsumptionCalculator.js';
+import {calculateDailyEnergyConsumption, calculateMontlyEnergyConsumption} from './energyConsumptionCalculator.js';
 
 // Create a new argument parser
 const parser = new ArgumentParser()
@@ -7,10 +7,14 @@ const parser = new ArgumentParser()
 // Add arguments to be parsed
 parser.add_argument('-d', '--days', {
   help: 'Days back',
-  required: true
+  required: false
 });
 
-// Add arguments to be parsed
+parser.add_argument('-m', '--months', {
+  help: 'Months back',
+  required: false
+});
+
 parser.add_argument('-t', '--type', {
   help: 'Calculation type',
   choices: ['daily', 'monthly'],
@@ -27,7 +31,10 @@ const main = async function() {
 
     switch (args.type) {
         case 'daily':
-            calculateForDaysBack(args.days);
+            calculateDailyEnergyConsumption(args.days);
+            break;
+        case 'monthly':
+            calculateMontlyEnergyConsumption(args.months);
             break;
     }        
 

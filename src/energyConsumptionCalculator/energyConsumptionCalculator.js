@@ -2,20 +2,15 @@ import {DBService} from './DBService.js'
 
 const dsService = new DBService()
 
-async function calculate(sensorId, daysBack) {
-    const startDate = new Date()
-    startDate.setDate(startDate.getDate() - daysBack)
-    startDate.setUTCHours(0, 0, 0, 0)
-
-    const endDate = new Date()
-    endDate.setUTCHours(23, 59, 59, 999)
-
+async function calculate(sensorId, calcType, startDate, endDate) {
     console.log('=================================')
     console.log('SensorId:', sensorId)
     console.log('StartDate:', startDate)
     console.log('EndDate:', endDate)
-    console.log('Days back:', daysBack)
+    console.log('CalculationType:', calcType)
     console.log('=================================')
+    
+    const channel = (calcType === 'daily') ? 'dailyConsumption' : 'monthlyConsumption';
 
     const filterOptionsForSelect = {
         sensorId: sensorId,
@@ -24,7 +19,7 @@ async function calculate(sensorId, daysBack) {
         endDate: endDate
     }
 
-    const dailyReading = await dsService.getDailyReading(filterOptionsForSelect)
+    const dailyReading = await dsService.getAggReading(calcType, filterOptionsForSelect)
 
     let lastDayReading = null
     let calculatedDailyConsumption = []
@@ -44,7 +39,7 @@ async function calculate(sensorId, daysBack) {
     calculatedDailyConsumption.forEach(dailyConsumption => {
         dataToInsert.push({
             sensor: sensorId,
-            channel: 'dailyConsumption',
+            channel: channel,
             value: dailyConsumption.consumed,
             time: dailyConsumption.day
         })
@@ -52,7 +47,7 @@ async function calculate(sensorId, daysBack) {
 
     const filterOptionsForDelete = {
         sensorId: sensorId,
-        channel: 'dailyConsumption',
+        channel: channel,
         startDate: startDate,
         endDate: endDate
     }
@@ -64,12 +59,39 @@ async function calculate(sensorId, daysBack) {
     await dsService.insertData(dataToInsert)
 }
 
-const calculateForDaysBack = async function(days) {
+const calculateDailyEnergyConsumption = async function(days) {
     dsService.connect()
 
     try {
-        await calculate('D1MiniProEnergyMeterV1', days)
-        await calculate('ESP01EnergyMeterV2', days)
+        const startDate = new Date()
+        startDate.setDate(startDate.getDate() - days)
+        startDate.setUTCHours(0, 0, 0, 0)
+    
+        const endDate = new Date()
+        endDate.setUTCHours(23, 59, 59, 999)
+        
+        await calculate('D1MiniProEnergyMeterV1', 'daily', startDate, endDate)
+        await calculate('ESP01EnergyMeterV2', 'daily', startDate, endDate)
+
+    } finally {
+        await dsService.disconnect()
+    }
+}
+
+const calculateMontlyEnergyConsumption = async function(months) {
+    dsService.connect()
+
+    try {
+        const endDate = new Date();
+        endDate.setUTCHours(23, 59, 59, 999); // Set endDate to current time (for practical purposes, assuming full day is necessary)
+    
+        const startDate = new Date();
+        startDate.setMonth(startDate.getMonth() - months);
+        startDate.setDate(1); // Set startDate to the first day of the month
+        startDate.setUTCHours(0, 0, 0, 0); // Set to the beginning of the day
+        
+        await calculate('D1MiniProEnergyMeterV1', 'monthly', startDate, endDate)
+        await calculate('ESP01EnergyMeterV2', 'monthly', startDate, endDate)
 
     } finally {
         await dsService.disconnect()
@@ -79,5 +101,6 @@ const calculateForDaysBack = async function(days) {
 //main();
 
 export {
-    calculateForDaysBack
+    calculateDailyEnergyConsumption,
+    calculateMontlyEnergyConsumption
 }
