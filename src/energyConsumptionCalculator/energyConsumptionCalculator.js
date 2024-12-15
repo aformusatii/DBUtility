@@ -81,8 +81,8 @@ const calculateMontlyEnergyConsumption = async function(months) {
 
     try {
         const nowInChisinau = DateTime.now().setZone('Europe/Chisinau');
-        const startDate = nowInChisinau.minus({ months: months }).startOf('day').toJSDate();
-        const endDate = nowInChisinau.endOf('day').toJSDate();
+        const startDate = nowInChisinau.minus({ months: months }).startOf('month').toJSDate();
+        const endDate = nowInChisinau.endOf('month').toJSDate();
         
         await calculate('D1MiniProEnergyMeterV1', 'monthly', startDate, endDate)
         await calculate('ESP01EnergyMeterV2', 'monthly', startDate, endDate)
