@@ -1,4 +1,5 @@
-import {DBService} from './DBService.js'
+import { DBService } from './DBService.js'
+import { DateTime } from 'luxon';
 
 const dsService = new DBService()
 
@@ -63,12 +64,10 @@ const calculateDailyEnergyConsumption = async function(days) {
     dsService.connect()
 
     try {
-        const startDate = new Date()
-        startDate.setDate(startDate.getDate() - days)
-        startDate.setUTCHours(0, 0, 0, 0)
-    
-        const endDate = new Date()
-        endDate.setUTCHours(23, 59, 59, 999)
+        
+        const nowInChisinau = DateTime.now().setZone('Europe/Chisinau');
+        const startDate = nowInChisinau.minus({ days: days }).startOf('day').toJSDate();
+        const endDate = nowInChisinau.endOf('day').toJSDate();
         
         await calculate('D1MiniProEnergyMeterV1', 'daily', startDate, endDate)
         await calculate('ESP01EnergyMeterV2', 'daily', startDate, endDate)
@@ -82,13 +81,9 @@ const calculateMontlyEnergyConsumption = async function(months) {
     dsService.connect()
 
     try {
-        const endDate = new Date();
-        endDate.setUTCHours(23, 59, 59, 999); // Set endDate to current time (for practical purposes, assuming full day is necessary)
-    
-        const startDate = new Date();
-        startDate.setMonth(startDate.getMonth() - months);
-        startDate.setDate(1); // Set startDate to the first day of the month
-        startDate.setUTCHours(0, 0, 0, 0); // Set to the beginning of the day
+        const nowInChisinau = DateTime.now().setZone('Europe/Chisinau');
+        const startDate = nowInChisinau.minus({ months: months }).startOf('day').toJSDate();
+        const endDate = nowInChisinau.endOf('day').toJSDate();
         
         await calculate('D1MiniProEnergyMeterV1', 'monthly', startDate, endDate)
         await calculate('ESP01EnergyMeterV2', 'monthly', startDate, endDate)
