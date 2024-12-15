@@ -64,7 +64,6 @@ const calculateDailyEnergyConsumption = async function(days) {
     dsService.connect()
 
     try {
-        
         const nowInChisinau = DateTime.now().setZone('Europe/Chisinau');
         const startDate = nowInChisinau.minus({ days: days }).startOf('day').toJSDate();
         const endDate = nowInChisinau.endOf('day').toJSDate();
